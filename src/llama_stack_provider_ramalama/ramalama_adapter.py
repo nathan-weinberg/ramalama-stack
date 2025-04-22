@@ -39,15 +39,17 @@ from llama_stack.providers.utils.inference.model_registry import (
     ModelRegistryHelper,
 )
 from llama_stack.providers.utils.inference.openai_compat import (
-    convert_chat_completion_request,
-    convert_completion_request,
     convert_openai_chat_completion_choice,
     convert_openai_chat_completion_stream,
-    convert_openai_completion_choice,
-    convert_openai_completion_stream,
     prepare_openai_completion_params,
 )
 
+from .openai_compat import (
+    convert_chat_completion_request,
+    convert_completion_request,
+    convert_openai_completion_choice,
+    convert_openai_completion_stream,
+)
 from .models import model_entries
 
 logger = get_logger(name=__name__, category="inference")
@@ -129,7 +131,9 @@ class RamalamaInferenceAdapter(Inference, ModelsProtocolPrivate):
         )
         s = await self.client.chat.completions.create(**request)
         if stream:
-            return convert_openai_chat_completion_stream(s, enable_incremental_tool_calls=False)
+            return convert_openai_chat_completion_stream(
+                s, enable_incremental_tool_calls=False
+            )
         else:
             # we pass n=1 to get only one completion
             return convert_openai_chat_completion_choice(s.choices[0])
@@ -142,8 +146,14 @@ class RamalamaInferenceAdapter(Inference, ModelsProtocolPrivate):
         output_dimension: Optional[int] = None,
         task_type: Optional[EmbeddingTaskType] = None,
     ) -> EmbeddingsResponse:
-        flat_contents = [content.text if isinstance(content, TextContentItem) else content for content in contents]
-        input = [content.text if isinstance(content, TextContentItem) else content for content in flat_contents]
+        flat_contents = [
+            content.text if isinstance(content, TextContentItem) else content
+            for content in contents
+        ]
+        input = [
+            content.text if isinstance(content, TextContentItem) else content
+            for content in flat_contents
+        ]
         model = self.get_provider_model_id(model_id)
 
         extra_body = {}
@@ -175,7 +185,9 @@ class RamalamaInferenceAdapter(Inference, ModelsProtocolPrivate):
         except BadRequestError as e:
             raise ValueError(f"Failed to get embeddings: {e}") from e
 
-        return EmbeddingsResponse(embeddings=[embedding.embedding for embedding in response.data])
+        return EmbeddingsResponse(
+            embeddings=[embedding.embedding for embedding in response.data]
+        )
 
     async def register_model(self, model: Model) -> Model:
         model = await self.register_helper.register_model(model)

@@ -23,29 +23,62 @@ jobs:
           uv sync
           uv pip install -e .
 
+      - name: Start Ramalama server in background
+        run: |
+          source .venv/bin/activate
+          ramalama pull llama3.2:3b-instruct-fp16
+          # Start ramalama serve in background with logging
+          nohup uv run ramalama serve llama3.2:3b-instruct-fp16 > ramalama.log 2>&1 &
+          RAMALAMA_PID=$!
+          echo "Started Ramalama with PID: $RAMALAMA_PID"
+
+          # Wait for ramalama to be ready by testing a chat completion
+          echo "Waiting for Ramalama server..."
+          for i in {1..30}; do
+            echo "Attempt $i to connect to Ramalama..."
+            if curl -s -X POST http://localhost:8080/v1/chat/completions \
+              -H "Content-Type: application/json" \
+              -d '{"messages": [{"role": "user", "content": "Hello"}], "model": "llama3.2:3b-instruct-fp16"}' \
+              | grep -q "choices"; then
+              echo "Ramalama server is up and responding!"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "Ramalama server failed to start or respond"
+              echo "Ramalama logs:"
+              cat ramalama.log
+              exit 1
+            fi
+            sleep 1
+          done
+
       - name: Start Llama Stack server in background
         run: |
           source .venv/bin/activate
           touch server.log
-          LLAMA_STACK_LOG_FILE=server.log nohup uv run llama stack run run.yaml --image-type venv &
+          INFERENCE_MODEL=llama3.2:3b-instruct-fp16 LLAMA_STACK_LOG_FILE=server.log nohup uv run llama stack run run.yaml --image-type venv &
 
       - name: Wait for Llama Stack server to be ready
         run: |
           echo "Waiting for Llama Stack server..."
           for i in {1..30}; do
+            echo "Attempt $i to connect to Llama Stack..."
             if curl -s http://localhost:8321/v1/health | grep -q "OK"; then
               echo "Llama Stack server is up!"
-              if grep -q -e "remote::instructlab_kft from .*providers.d/remote/post_training/instructlab_kft.yaml" server.log; then
-                echo "Llama Stack server is using InstructLab KFT provider"
+              if grep -q -e "remote::ramalama from .*providers.d/remote/inference/ramalama.yaml" server.log; then
+                echo "Llama Stack server is using Ramalama provider"
                 exit 0
               else
-                echo "Llama Stack server is not using InstructLab KFT provider"
+                echo "Llama Stack server is not using Ramalama provider"
+                echo "Server logs:"
+                cat server.log
                 exit 1
               fi
             fi
             sleep 1
           done
           echo "Llama Stack server failed to start"
+          echo "Server logs:"
           cat server.log
           exit 1
 

@@ -11,7 +11,7 @@ def get_provider_spec() -> ProviderSpec:
         api=Api.inference,
         adapter=AdapterSpec(
             adapter_type="ramalama",
-            pip_packages=["ramalama==0.7.05"],
+            pip_packages=["ramalama>=0.7.5", "faiss-cpu"],
             config_class="config.RamalamaImplConfig",
             module="ramalama_adapter",
         ),

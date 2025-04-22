@@ -5,4 +5,3 @@ adapter:
   module: llama_stack_provider_ramalama
 api_dependencies: []
 optional_api_dependencies: []
-
