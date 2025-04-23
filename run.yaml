@@ -120,3 +120,4 @@ tool_groups:
   provider_id: code-interpreter
 server:
   port: 8321
+external_providers_dir: ./providers.d

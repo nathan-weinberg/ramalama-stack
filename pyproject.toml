@@ -1,9 +1,17 @@
+[project]
 name = "llama-stack-provider-ramalama"
 version = "0.1.0"
+description = "Llama Stack Provider for Ramalama Inference"
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = ["ramalama", "llama", "AI"]
+requires-python = ">=3.10"
 dependencies = [
     "llama-stack @ git+https://github.com/meta-llama/llama-stack.git@main", # https://github.com/containers/llama-stack-provider-ramalama/issues/6
     "ramalama>=0.7.5",
     "urllib3",
+    "faiss-cpu",
+    "autoevals",
     "six",
     "pydantic",
     "aiohttp",
@@ -18,11 +26,6 @@ dependencies = [
     "requests",
     "uvicorn",
 ]
-description = "Llama Stack Provider for Ramalama Inference"
-readme = "README.md"
-license = {file = "LICENSE"}
-keywords = ["ramalama", "llama", "AI"]
-requires-python = ">=3.10"
 
 [project.urls]
 Repository = "https://github.com/containers/llama-stack-provider-ramalama"
