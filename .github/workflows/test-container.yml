@@ -40,7 +40,7 @@ jobs:
       - name: Set Up Environment and Install Dependencies
         run: |
           # install podman
-          apt-get -y install podman
+          sudo apt-get -y install podman
 
           # install packaged version of ramalama
           uv venv
