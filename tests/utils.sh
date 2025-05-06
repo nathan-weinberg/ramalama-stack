@@ -64,7 +64,7 @@ function start_and_wait_for_llama_stack_container {
     --env INFERENCE_MODEL="$INFERENCE_MODEL" \
     --env RAMALAMA_URL=http://0.0.0.0:8080 \
     --env LLAMA_STACK_LOG_FILE=lls.log \
-    -n llama-stack \
+    --name llama-stack \
     ramalama/llama-stack
   LLS_PID=$!
   echo "Started Llama Stack container with PID: $LLS_PID"
