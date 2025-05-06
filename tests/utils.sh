@@ -64,6 +64,7 @@ function start_and_wait_for_llama_stack_container {
     --env INFERENCE_MODEL="$INFERENCE_MODEL" \
     --env RAMALAMA_URL=http://0.0.0.0:8080 \
     --env LLAMA_STACK_LOG_FILE=lls.log \
+    -n llama-stack \
     ramalama/llama-stack
   LLS_PID=$!
   echo "Started Llama Stack container with PID: $LLS_PID"
@@ -75,13 +76,13 @@ function start_and_wait_for_llama_stack_container {
     resp=$(curl -s http://localhost:8321/v1/health)
     if [ "$resp" == '{"status":"OK"}' ]; then
       echo "Llama Stack server is up!"
-      if grep -q -e "remote::ramalama from .*providers.d/remote/inference/ramalama.yaml" lls.log; then
+      if podman exec llama-stack cat lls.log | grep -q -e "remote::ramalama from .*providers.d/remote/inference/ramalama.yaml"; then
         echo "Llama Stack server is using RamaLama provider"
         return
       else
         echo "Llama Stack server is not using RamaLama provider"
         echo "Server logs:"
-        cat lls.log
+        podman exec llama-stack cat lls.log
         exit 1
       fi
     fi
@@ -89,7 +90,7 @@ function start_and_wait_for_llama_stack_container {
   done
   echo "Llama Stack server failed to start"
   echo "Server logs:"
-  cat lls.log
+  podman exec llama-stack cat lls.log
   exit 1
 }
 
