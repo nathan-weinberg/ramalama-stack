@@ -9,6 +9,9 @@ on:
       - 'src/ramalama_stack/**'
       - 'tests/**'
       - '.github/workflows/test-external-providers.yml'
+      - pyproject.toml
+      - requirements.txt
+      - uv.lock
   pull_request:
     branches:
       - main
@@ -16,6 +19,9 @@ on:
       - 'src/ramalama_stack/**'
       - 'tests/**'
       - '.github/workflows/test-external-providers.yml'
+      - pyproject.toml
+      - requirements.txt
+      - uv.lock
 
 env:
   LC_ALL: en_US.UTF-8
@@ -62,7 +68,6 @@ jobs:
       - name: Set Up Environment and Install Dependencies
         run: |
           uv sync
-          uv pip install -e .
 
           # temporary hack for file writing that should be done by the pip setup script
           # https://github.com/containers/ramalama-stack/issues/53
