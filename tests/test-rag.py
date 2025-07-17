@@ -71,6 +71,8 @@ def setup_vector_db(client):
         provider_id=os.getenv("VDB_PROVIDER", "milvus"),
     )
 
+    print(f"Vector database '{vector_db_id}' registered")
+
     # Ingest simple test documents instead of external URLs
     test_content = [
         "RamaLama Stack is an external provider for Llama Stack that allows for the use of RamaLama for inference.",
@@ -88,7 +90,9 @@ def setup_vector_db(client):
         for i, content in enumerate(test_content)
     ]
 
-    print(f"Ingesting {len(documents)} test documents into vector database...")
+    print(
+        f"Ingesting {len(documents)} test documents into vector database '{vector_db_id}'..."
+    )
     client.tool_runtime.rag_tool.insert(
         documents=documents,
         vector_db_id=vector_db_id,
